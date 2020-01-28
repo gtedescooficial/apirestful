@@ -5,9 +5,9 @@ namespace App\Http\Controllers\User;
 use App\User;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
 
-class UserController extends Controller
+class UserController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -17,8 +17,9 @@ class UserController extends Controller
     public function index()
     {
         $usuarios = User::all();
-        $usuarios = response()->json(['data' => $usuarios], 200);
-        return $usuarios;
+        return $this->showAll($usuarios);
+        /* $usuarios = response()->json(['data' => $usuarios], 200);
+        return $usuarios; */
     }
 
     
@@ -41,6 +42,7 @@ class UserController extends Controller
         $this->validate($request, $rules);
 
         $campos = $request->all();
+        
         $campos['password'] = bcrypt($request->password);
         $campos['verified'] = User::UNVERIFIED;
         $campos['verification_token'] = User::generateVerificationToken();
@@ -48,7 +50,8 @@ class UserController extends Controller
 
         $usuario = User::create($campos);
 
-        return response()->json(['data'=>$usuario],201);
+        return $this->showOne($usuario,201);
+        // return response()->json(['data'=>$usuario],201);
     }
 
     /**
@@ -57,11 +60,12 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
-        $usuario = User::findOrFail($id);
+        // $usuario = User::findOrFail($id);
 
-        return response()->json(['data' => $usuario],200);
+        return $this->showOne($user);
+        // return response()->json(['data' => $usuario],200);
     }
 
    
@@ -72,9 +76,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        $user = User::findOrFail($id);
+        // $user = User::findOrFail($id);
         
          $rules = [
            
@@ -105,12 +109,15 @@ class UserController extends Controller
         endif;
 
         if( !$user->isDirty() ):
-            return response()->json(['error'=>'É necessario especificar algum valor diferente do original', 'code' => 422],422);    
+            return $this->errorResponse('É necessario especificar algum valor diferente do original',422);
+            // return response()->json(['error'=>'É necessario especificar algum valor diferente do original', 'code' => 422],422);    
         endif;
 
         if( $request->has('admin') ):
             if(! $user->is_verified() ):
-                return response()->json(['error'=>'Unicamente usuarios com conta verificada podem virar admin', 'code'=>409],409);
+                return $this->errorResponse('Unicamente usuarios com conta verificada podem virar admin',409);
+
+                // return response()->json(['error'=>'Unicamente usuarios com conta verificada podem virar admin', 'code'=>409],409);
             endif;
 
             $user->admin = $request->admin;
@@ -120,8 +127,9 @@ class UserController extends Controller
 
 
     $user->save();
+    return $this->showOne($user);
 
-    return response()->json(['data'=>$user],200); 
+    // return response()->json(['data'=>$user],200); 
 
 
     }
@@ -132,12 +140,11 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $user = User::findOrFail($id);
-
+        
         $user->delete();
-
-        return response()->json(['data' => $user,'code'=>'Usuario eliminado com sucesso'],200);
+        return $this->showOne($user,201);
+        // return response()->json(['data' => $user,'code'=>'Usuario eliminado com sucesso'],200);
     }
 }

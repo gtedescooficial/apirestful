@@ -23,6 +23,7 @@ class CreateTransactionsTable extends Migration
 
             $table->foreign('product_id')->references('id')->on('products');
             $table->foreign('buyer_id')->references('id')->on('users');
+            $table->softDeletes();
         });
     }
 

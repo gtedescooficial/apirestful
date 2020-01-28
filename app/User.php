@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -13,7 +14,9 @@ class User extends Authenticatable
     const VERIFIED = '1';
     const UNVERIFIED = '0';
 
-    use Notifiable;
+    protected $dates = ['delete_at'];
+
+    use Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -23,7 +26,21 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password', 'verified', 'verification_token','admin','admin'
     ];
+    public function setNameAttribute($value){
+        $this->attributes['name'] = strtolower($value);
+        
+    }
+    
+    public function setEmailAttribute($value){
+        $this->attributes['email'] = strtolower($value);
 
+    }
+
+    public function getNameAttribute($value){
+        return ucwords($value);
+    }
+    
+    
     /**
      * The attributes that should be hidden for arrays.
      *
