@@ -67,8 +67,8 @@ class Handler extends ExceptionHandler
                 $error = "O recurso que tenta eliminar tem outros recursos do BD amarrados";
             else:
                 
-                $error = "A eliminação solicitada retornou um erro de segurança do banco 
-                de dados, pode ser um recurso comppartilhado o qual está tentando eliminar";
+                $error = "A operação solicitada retornou um erro de segurança do banco 
+                de dados, pode existir um erro na query";
             endif;
         
             return $this->errorResponse($error,405);
