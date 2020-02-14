@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Transformers\TransactionTransformer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
@@ -11,6 +12,8 @@ class Transaction extends Model
     use Notifiable, SoftDeletes;
     protected $dates = ['delete_at'];
 
+    public $transformer = TransactionTransformer::class;
+    
     protected $fillable = [
         
         'quantity',

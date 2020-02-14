@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Transformers\ProductTransformer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -13,6 +14,11 @@ class Product extends Model
     const PRODUCT_YES = 'yes';
     protected $dates = ['delete_at'];
 
+    protected $hidden = [
+        'pivot'
+    ];
+
+    public $transformer = ProductTransformer::class;
 
 
     protected $fillable = [
@@ -24,7 +30,7 @@ class Product extends Model
         'seller_id'
     ];
 
-    public function pruductYes(){
+    public function productYes(){
         return $this->status == Product::PRODUCT_YES;
     }
 

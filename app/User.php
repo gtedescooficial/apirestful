@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Transformers\UserTransformer;
 
 class User extends Authenticatable
 {
@@ -16,6 +17,8 @@ class User extends Authenticatable
 
     protected $dates = ['delete_at'];
 
+    public $transformer = UserTransformer::class;
+
     use Notifiable, SoftDeletes;
 
     /**
@@ -24,7 +27,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'verified', 'verification_token','admin','admin'
+        'name', 'email', 'password', 'verified', 'verification_token','admin'
     ];
     public function setNameAttribute($value){
         $this->attributes['name'] = strtolower($value);
@@ -47,7 +50,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token','verification_token'
+        'password', 'remember_token',
+        // 'verification_token'
     ];
 
     public function is_admin(){

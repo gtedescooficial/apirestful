@@ -5,10 +5,23 @@ namespace App\Http\Controllers\User;
 use App\User;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\ApiController;
+use App\Mail\UserCreated;
+use App\Transformers\UserTransformer;
 
 class UserController extends ApiController
 {
+
+    public function __construct(){
+
+        parent::__construct();
+
+        // adicionado o midd para transformar os nomes de campo entrantes nas request
+        //nao esquecer que usamos transformações para os campos do banco
+        $this->middleware('transform.input'.UserTransformer::class)->only(['store', 'update']);
+
+    }
     /**
      * Display a listing of the resource.
      *
@@ -34,7 +47,8 @@ class UserController extends ApiController
 
         $rules = [
             'name' => 'required',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email|
+            ',
             'password' => 'required|min:6|confirmed',
             
         ];
@@ -80,10 +94,11 @@ class UserController extends ApiController
     {
         // $user = User::findOrFail($id);
         
+
          $rules = [
            
-            'email' => 'required|email|unique:users,email,'.$user->id,
-            'password' => 'required|min:6',
+            'email' => 'email|unique:users,email,'.$user->id,
+            'password' => 'min:6',
             'admin' => 'in:'.User::ADMIN.','.User::GUEST,
 
             
@@ -143,8 +158,33 @@ class UserController extends ApiController
     public function destroy(User $user)
     {
         
+
         $user->delete();
         return $this->showOne($user,201);
         // return response()->json(['data' => $user,'code'=>'Usuario eliminado com sucesso'],200);
+    }
+
+    public function verify($token){
+        $user = User::where('verification_token',$token)->firstOrFail();
+        $user->verified = User::VERIFIED;
+        $user->verification_token = null;
+        $user->save();
+
+        return $this->showMessage('A conta foi verificada');
+    }
+
+    public function resend(User $user){
+
+            
+
+            if($user->is_verified()){
+
+                $this->errorResponse('Este usuario ja encontra-se verificado',409);
+            }
+
+            Mail::to($user)->send(new UserCreated($user) );
+
+            
+            return $this->showMessage('O email de verificação foi enviado corretamente');
     }
 }

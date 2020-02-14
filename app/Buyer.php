@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Scopes\BuyerScope;
+use App\Transformers\BuyerTransformer;
 
 class Buyer extends User
 {
@@ -12,6 +13,8 @@ class Buyer extends User
         static::addGlobalScope(new BuyerScope);
     }
 
+    public $transformer = BuyerTransformer::class;
+    
     protected $table = 'users';
     
     public function transactions(){
